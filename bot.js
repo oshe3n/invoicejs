@@ -27,10 +27,11 @@ class MyBot extends ActivityHandler {
 
         this.onMessage(async (context, next) => {
 
-            var _text = "Use commands like 'PO Order' or 'Get PO Order' to get PO data. Use 'new invoice' or 'Create new invoice' to create/upload invoice."
+            var _text = "Use commands like 'PO' or 'Get PO' to get PO data. Use 'new invoice' or 'Create new invoice' to create/upload invoice."
+            var flag=true;
 
             if(invoices.po_orderid==true){                            
-                _text = "PO Order doesn't exists"
+                _text = "PO doesn't exists"
                 var txt = context.activity.text
                 await sp.web.lists.getByTitle("PO_LIST").items.get().then((items) => {
                     items.forEach(element => {
@@ -54,10 +55,13 @@ class MyBot extends ActivityHandler {
                 await context.sendActivity({
                     attachments: [CardFactory.adaptiveCard(poCard)]
                 });
+                else
+                await context.sendActivity(_text);
+                flag=false;
             }
 
             if(invoices.invoiceid==true){
-                _text = "PO Order doesn't exists"
+                _text = "PO doesn't exists"
                 var txt = context.activity.text
                 await sp.web.lists.getByTitle("PO_LIST").items.get().then((items) => {
                     items.forEach(element => {
@@ -75,13 +79,16 @@ class MyBot extends ActivityHandler {
                 await context.sendActivity({
                     attachments: [CardFactory.adaptiveCard(invCard)]
                 });
+                else
+                await context.sendActivity(_text);
+                flag=false;
             }
 
             if (context.activity.value !== undefined)
             if(context.activity.value.type=='Enter'){
                     context.activity.text="nil";
                     console.log()
-                    console.log(context.activity.value)
+                    var curr = context.activity.value.date;
 
                     sp.web.lists.getByTitle("INV_LIST").items.add({
                         "Title": invCard.body[1].text,
@@ -90,48 +97,71 @@ class MyBot extends ActivityHandler {
                         "InvoiceAmmount" : context.activity.value.ammount
                     });
                     
-
+                    _text="Please attach the invoice copy"
+                    
 
                     var newpaid = parseInt(context.activity.value.ammount,10)
 
-                    sp.web.lists.getByTitle("PO_LIST").items.get().then((items) => {
+                    await sp.web.lists.getByTitle("PO_LIST").items.get().then((items) => {
                         items.forEach(element => {
                             if(element.Title==invCard.body[1].text)
                             {
                                 var id = element.Id;            
                                 var paidValue = element.PaidValue;
+                                var enddate = Date.parse(element.EndDate);
+                                var currdate = Date.parse(curr);
                                 var remainingValue =element.RemainingValue;         
-                                console.log(id);              
-                                if(newpaid<remainingValue)
+                                
+                                if(newpaid>remainingValue)
+                                    _text = "The PO have insufficient balance"
+                                
+                                if(currdate>enddate)
+                                    _text = "Cannot create invoice after expiry, The PO expires "+element.EndDate;
+
+                                if(newpaid<remainingValue && currdate<enddate)
                                 sp.web.lists.getByTitle("PO_LIST").items.getById(id).update({
                                     PaidValue : (paidValue+newpaid),
                                     RemainingValue : (remainingValue-newpaid)
-                                })
+                                })                                
+                                
                             }        
                         });          
                     })
 
-                    _text="Please attach the invoice copy"
+                   
+
+                    await context.sendActivity(_text);
+                    flag=false;
             } 
             
             if(context.activity.attachments){
                 _text = "Thank you for attaching invoice"
+                await context.sendActivity(_text);                
+                flag=false;
             }
 
             if(context.activity.text != undefined)
-            if(context.activity.text.toLowerCase().includes('po order')){
+            if(context.activity.text.toLowerCase().includes('po')){
                 _text = "Enter the PO Order number";
                 invoices.po_orderid = true;
+                await context.sendActivity(_text);
+                flag=false;
             }                        
 
             if(context.activity.text != undefined)
             if(context.activity.text.toLowerCase().includes('invoice')){
                 _text = "Enter the PO number on which invoice to be filled";
                 invoices.invoiceid = true;
+                await context.sendActivity(_text);
+                flag=false;
             }                       
 
 
-            await context.sendActivity(_text);
+            if(flag)
+            {
+                await context.sendActivity(_text);                                
+            }
+            
             // By calling next() you ensure that the next BotHandler is run.
             await next();
         });
@@ -140,7 +170,7 @@ class MyBot extends ActivityHandler {
             const membersAdded = context.activity.membersAdded;
             for (let cnt = 0; cnt < membersAdded.length; ++cnt) {
                 if (membersAdded[cnt].id !== context.activity.recipient.id) {                    
-                    await context.sendActivity("");
+                    
                 }
             }            
             invoices.End();
