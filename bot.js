@@ -90,7 +90,7 @@ class MyBot extends ActivityHandler {
                         "InvoiceAmmount" : context.activity.value.ammount
                     });
                     
-                    
+
 
                     var newpaid = parseInt(context.activity.value.ammount,10)
 
@@ -140,7 +140,7 @@ class MyBot extends ActivityHandler {
             const membersAdded = context.activity.membersAdded;
             for (let cnt = 0; cnt < membersAdded.length; ++cnt) {
                 if (membersAdded[cnt].id !== context.activity.recipient.id) {                    
-                    await context.sendActivity("Use commands like 'PO Order' or 'Get PO Order' to get PO data. Use 'new invoice' or 'Create new invoice' to create/upload invoice.");
+                    await context.sendActivity("");
                 }
             }            
             invoices.End();
