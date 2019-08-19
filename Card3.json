@@ -41,18 +41,14 @@
                 }
             ],
             "separator": true
-        },
-        {
-            "type": "ActionSet",
-            "actions": [
-                {
-                    "type": "Action.OpenUrl",
-                    "title": "Download PDF",
-                    "url": "https://m365x628217.sharepoint.com/sites/TestTeamsMIP"
-                }
-            ]
-        }
+        }        
     ],
+    "actions": [
+        {
+            "type": "Action.OpenUrl",
+            "title": "Download PDF",
+            "url": "https://m365x628217.sharepoint.com/sites/TestTeamsMIP"
+        }],
     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
     "version": "1.0"
 }
