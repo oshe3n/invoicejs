@@ -1,0 +1,43 @@
+{
+    "type": "AdaptiveCard",
+    "body": [
+        {
+            "type": "TextBlock",
+            "size": "medium",
+            "weight": "bolder",
+            "text": "New Invoice Entry for Purchase Order"
+        },
+        {
+            "type": "TextBlock",
+            "text": "New TextBlock",
+            "id": "poName"
+        },
+        {
+            "type": "Input.Text",
+            "title": "New Input.Toggle",
+            "placeholder": "Invoice Number",
+            "id": "invoicenumber"
+        },
+        {
+            "type": "Input.Date",
+            "title": "New Input.Toggle",
+            "id": "date",
+            "value": "2019-08-19"
+        },
+        {
+            "type": "Input.Text",
+            "title": "New Input.Toggle",
+            "placeholder": "Invoice Ammount",
+            "id": "ammount"
+        }
+    ],
+    "actions": [
+        {
+            "type": "Action.Submit",
+            "title": "Submit",
+            "data": { "type" : "Enter"}
+        }
+    ],
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.0"
+}
