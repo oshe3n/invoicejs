@@ -9,6 +9,7 @@ var SPFetchClient = require("@pnp/nodejs").SPFetchClient;
 var Invoices = require('./object').Invoices;
 const poCard = require('./Card1.json');
 const invCard = require('./Card2.json');
+const invDetail = require('./Card3.json');
 
 var invoices = new Invoices();    
 
@@ -27,8 +28,38 @@ class MyBot extends ActivityHandler {
 
         this.onMessage(async (context, next) => {
 
-            var _text = "Use commands like 'PO' or 'Get PO' to get PO data. Use 'new invoice' or 'Create new invoice' to create/upload invoice."
+            var _text = "Use commands like 'PO' or 'Get PO' to get PO data. Use 'new invoice' or 'Create new invoice' to create/upload invoice. Use 'get invoices' or 'invoices' to list Invoices"
             var flag=true;
+
+            if(invoices.po_orderid==true && invoices.invoiceid==true)
+            {
+                
+                invoices.invoiceid = false;
+                invoices.po_orderid = false; 
+                
+                var txt = context.activity.text;
+                
+                var aatach=[]
+                
+                await sp.web.lists.getByTitle("INV_LIST").items.get().then((items) => {
+                    items.forEach(element => {
+                        if(element.Title==txt)
+                        {                        
+                            invDetail.body[1].facts[0].value = txt
+                            invDetail.body[1].facts[1].value = element.InvoiceNumber
+                            invDetail.body[1].facts[2].value = element.InvoiceDate
+                            invDetail.body[1].facts[3].value = element.InvoiceAmmount                            
+                            aatach.push(CardFactory.adaptiveCard(invDetail))                                                                
+                        }        
+                    });    
+                });                
+
+                await context.sendActivity({
+                    attachments: aatach
+                });    
+
+                flag=false;
+            }
 
             if(invoices.po_orderid==true){                            
                 _text = "PO doesn't exists"
@@ -88,17 +119,9 @@ class MyBot extends ActivityHandler {
             if(context.activity.value.type=='Enter'){
                     context.activity.text="nil";
                     console.log()
-                    var curr = context.activity.value.date;
-
-                    sp.web.lists.getByTitle("INV_LIST").items.add({
-                        "Title": invCard.body[1].text,
-                        "InvoiceNumber": context.activity.value.invoicenumber,
-                        "InvoiceDate":  context.activity.value.date,
-                        "InvoiceAmmount" : context.activity.value.ammount
-                    });
+                    var curr = context.activity.value.date;                    
                     
-                    _text="Please attach the invoice copy"
-                    
+                    _text="Please attach the invoice copy"                    
 
                     var newpaid = parseInt(context.activity.value.ammount,10)
 
@@ -119,11 +142,19 @@ class MyBot extends ActivityHandler {
                                     _text = "Cannot create invoice after expiry, The PO expires "+element.EndDate;
 
                                 if(newpaid<remainingValue && currdate<enddate)
-                                sp.web.lists.getByTitle("PO_LIST").items.getById(id).update({
-                                    PaidValue : (paidValue+newpaid),
-                                    RemainingValue : (remainingValue-newpaid)
-                                })                                
-                                
+                                {
+                                    sp.web.lists.getByTitle("INV_LIST").items.add({
+                                        "Title": invCard.body[1].text,
+                                        "InvoiceNumber": context.activity.value.invoicenumber,
+                                        "InvoiceDate":  context.activity.value.date,
+                                        "InvoiceAmmount" : context.activity.value.ammount
+                                    });
+
+                                    sp.web.lists.getByTitle("PO_LIST").items.getById(id).update({
+                                        PaidValue : (paidValue+newpaid),
+                                        RemainingValue : (remainingValue-newpaid)
+                                    }) 
+                                }                                                                                               
                             }        
                         });          
                     })
@@ -147,6 +178,16 @@ class MyBot extends ActivityHandler {
                 await context.sendActivity(_text);
                 flag=false;
             }                        
+
+            if(context.activity.text != undefined)
+            if(context.activity.text.toLowerCase().includes('invoices')){
+                _text = "Enter the PO number to list Invoices";
+                invoices.invoiceid = true;
+                invoices.po_orderid = true;
+                context.activity.text='nil'
+                await context.sendActivity(_text);
+                flag=false;
+            }
 
             if(context.activity.text != undefined)
             if(context.activity.text.toLowerCase().includes('invoice')){
