@@ -43,11 +43,13 @@ class MyBot extends ActivityHandler {
                 
                 var txt = context.activity.text;
                 
+                var found = false;
+
                 var json= {};                
                 json = Object.assign({},newcard);  
                 json.body=[];                
                 json.body.push(JSON.parse('{"type":"Container","style":"emphasis","items":[{"type":"ColumnSet","columns":[{"type":"Column","items":[{"type":"TextBlock","size":"Large","weight":"Bolder","text":"**INVOICE SUMMARY**"}],"width":"stretch"}]}],"bleed":true}'));
-                json.body.push(JSON.parse('{"type":"Container","items":[{"type":"ColumnSet","columns":[{"type":"Column","items":[{"type":"TextBlock","size":"Large","text":"PO Number : '+txt+'","wrap":true}],"width":"stretch"},{"type":"Column","items":[{"type":"ActionSet","actions":[{"type":"Action.OpenUrl","title":"EXPORT AS PDF","url":"https://m365x628217.sharepoint.com/sites/TestTeamsMIP"}]}],"width":"auto"}]}]}'))
+                json.body.push(JSON.parse('{"type":"Container","items":[{"type":"ColumnSet","columns":[{"type":"Column","items":[{"type":"TextBlock","size":"Large","text":"PO Number : '+txt+'","wrap":true}],"width":"stretch"},{"type":"Column","items":[{"type":"ActionSet","actions":[{"type":"Action.OpenUrl","title":"EXCEL","url":"https://m365x628217.sharepoint.com/sites/TestTeamsMIP"}]}],"width":"auto"}]}]}'))
                 json.body.push(JSON.parse('{"type":"Container","spacing":"Large","style":"emphasis","items":[{"type":"ColumnSet","columns":[{"type":"Column","items":[{"type":"TextBlock","weight":"Bolder","text":"DATE"}],"width":"auto"},{"type":"Column","spacing":"Large","items":[{"type":"TextBlock","weight":"Bolder","text":"INVOICE NUMBER"}],"width":"stretch"},{"type":"Column","items":[{"type":"TextBlock","weight":"Bolder","text":"AMOUNT"}],"width":"auto"}]}],"bleed":true}'))
 
                 var tot = 0;
@@ -62,6 +64,7 @@ class MyBot extends ActivityHandler {
                             k.columns[2].items[0].text = element.InvoiceAmmount
                             json.body.push(k);                                 
                             tot+= parseInt(element.InvoiceAmmount);
+                            found=true;
                             /*var json= new Object();
                             json = Object.assign({},invDetail);                                                                          
                             json.body[1].facts[0].value = txt
@@ -75,9 +78,12 @@ class MyBot extends ActivityHandler {
                 
                 json.body.push(JSON.parse('{"type":"Container","style":"emphasis","items":[{"type":"ColumnSet","columns":[{"type":"Column","items":[{"type":"TextBlock","horizontalAlignment":"Right","text":"Total","wrap":true}],"width":"stretch"},{"type":"Column","items":[{"type":"TextBlock","weight":"Bolder","text":"'+tot+'"}],"width":"auto"}]}],"bleed":true}'));
 
+                if(found)
                 await context.sendActivity({
                     attachments: [CardFactory.adaptiveCard(json)]
                 });    
+                else
+                await context.sendActivity("No invoices found"); 
 
                 flag=false;
             }
