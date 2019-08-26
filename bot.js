@@ -166,7 +166,7 @@ class MyBot extends ActivityHandler {
                                     _text = "The PO have insufficient balance"
                                 
                                 if(currdate>enddate)
-                                    _text = "Cannot create invoice after expiry, The PO expires "+element.EndDate;
+                                    _text = "This PO has been expired or blocked. Pls reach out to Wipro helpdesk – demosupport@wiprodemo.com or 188xxx90098 (dummy contact)";
 
                                 if(newpaid<remainingValue && currdate<enddate)
                                 {
