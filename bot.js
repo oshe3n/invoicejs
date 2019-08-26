@@ -174,7 +174,8 @@ class MyBot extends ActivityHandler {
                                         "Title": invCard.body[1].text,
                                         "InvoiceNumber": context.activity.value.invoicenumber,
                                         "InvoiceDate":  context.activity.value.date,
-                                        "InvoiceAmmount" : context.activity.value.ammount
+                                        "InvoiceAmmount" : context.activity.value.ammount,
+                                        "VendorEmail" : context.activity.value.myemail
                                     });
 
                                     sp.web.lists.getByTitle("PO_LIST").items.getById(id).update({

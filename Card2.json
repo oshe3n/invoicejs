@@ -29,6 +29,12 @@
             "title": "New Input.Toggle",
             "placeholder": "Invoice Ammount",
             "id": "ammount"
+        },
+        {
+            "type": "Input.Text",
+            "title": "New Input.Toggle",
+            "placeholder": "Vendor Email",
+            "id": "myemail"
         }
     ],
     "actions": [
