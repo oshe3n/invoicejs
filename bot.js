@@ -125,9 +125,16 @@ class MyBot extends ActivityHandler {
                     items.forEach(element => {
                         if(element.Title==txt)
                         {
-                            invCard.body[0].text="New Invoice Entry for Vendor :  "+element.VendorName; // PO NUMBER
-                            invCard.body[1].text=element.Title; // PO NUMBER                                                        
-                            _text="";                                                                             
+                            var d = new Date();
+                            var enddate = Date.parse(element.EndDate);
+                            var currdate = Date.parse(d);
+                            if(currdate>enddate)
+                                    _text = "This PO has been expired or blocked. Pls reach out to Wipro helpdesk – demosupport@wiprodemo.com or 188-123-9008";
+                            else{
+                                invCard.body[0].text="New Invoice Entry for Vendor :  "+element.VendorName; // PO NUMBER
+                                invCard.body[1].text=element.Title; // PO NUMBER                                                        
+                                _text="";
+                            }                                                                                                         
                         }        
                     });    
                 });                
@@ -166,7 +173,7 @@ class MyBot extends ActivityHandler {
                                     _text = "The PO have insufficient balance"
                                 
                                 if(currdate>enddate)
-                                    _text = "This PO has been expired or blocked. Pls reach out to Wipro helpdesk – demosupport@wiprodemo.com or 188xxx90098 (dummy contact)";
+                                    _text = "This PO has been expired or blocked. Pls reach out to Wipro helpdesk – demosupport@wiprodemo.com or 188-123-9008";
 
                                 if(newpaid<remainingValue && currdate<enddate)
                                 {
@@ -186,17 +193,17 @@ class MyBot extends ActivityHandler {
                             }        
                         });          
                     })
-
                    
-
                     await context.sendActivity(_text);
                     flag=false;
             } 
             
             if(context.activity.attachments){
-                _text = "Thank you for attaching invoice"
+                _text = "Thank you for attaching invoice, your transaction is complete"
                 await context.sendActivity(_text);                
                 flag=false;
+                _text = "Use commands like 'PO' or 'Get PO' to get PO data. Use 'new invoice' or 'Create new invoice' to create/upload invoice. Use 'get invoices' or 'invoices' to list Invoices"
+                flag = true;
             }
 
             if(context.activity.text != undefined)
